@@ -87,7 +87,11 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
     // cout << "time start: " << time_start << endl;
   }
   else
+  {
+    cur_node->time = 0.0;
+    cur_node->time_idx = 0;
     expanded_nodes_.insert(cur_node->index, cur_node);
+  }
   
 
   PathNodePtr neighbor = NULL;
@@ -313,6 +317,11 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
         {
           if (pro_node == NULL)
           {
+            if (use_node_num_ >= allocate_num_)
+            {
+              cout << "run out of memory." << endl;
+              return NO_PATH;
+            }
             pro_node = path_node_pool_[use_node_num_];
             pro_node->index = pro_id;
             pro_node->state = pro_state;
@@ -324,13 +333,10 @@ int KinodynamicAstar::search(Eigen::Vector3d start_pt, Eigen::Vector3d start_v, 
             pro_node->node_state = IN_OPEN_SET;
             pro_node->motion_state = next_motion_state;
             pro_node->ground_penalty_flag = next_gnd_penalty_state;
-            pro_node->penalty_g_score = penalty_g_score; 
+            pro_node->penalty_g_score = penalty_g_score;
             pro_node->proximity_penalty_score = proximity_penalty_score;
-            if (dynamic)
-            {
-              pro_node->time = cur_node->time + tau;
-              pro_node->time_idx = timeToIndex(pro_node->time);
-            }
+            pro_node->time = cur_node->time + tau;
+            pro_node->time_idx = dynamic ? timeToIndex(pro_node->time) : 0;
             open_set_.push(pro_node);
 
             if (dynamic)
@@ -1091,6 +1097,7 @@ Eigen::Vector3i KinodynamicAstar::posToIndex(Eigen::Vector3d pt)
 int KinodynamicAstar::timeToIndex(double time)
 {
   int idx = floor((time - time_origin_) * inv_time_resolution_);
+  return idx;
 }
 
 void KinodynamicAstar::stateTransit(Eigen::Matrix<double, 6, 1>& state0, Eigen::Matrix<double, 6, 1>& state1,
