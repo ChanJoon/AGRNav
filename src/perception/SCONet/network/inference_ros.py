@@ -140,8 +140,12 @@ def main():
     logger.info('============ Test weights: "%s" ============\n' % weights_f)    
     wait_time = 0.4  # Seconds to wait before checking the dataset folder again
     train_batch_size = 1  # Set your desired batch_size here
-    while not rospy.is_shutdown(): 
+    while not rospy.is_shutdown():
         rospy.sleep(wait_time)
+        dataset_files = [name for name in os.listdir(dataset_f) if name.endswith('.bin')]
+        if not dataset_files:
+            rospy.loginfo("Waiting for voxel files in %s", dataset_f)
+            continue
         dataset = get_dataset(_cfg)['test']
              
         # dataset = None
@@ -165,8 +169,12 @@ def main():
         model = model.to(device=device)
         model = checkpoint.load_model(model, weights_f, logger)
         rate = rospy.Rate(10)  
-        inference_time = test(model, dataset, _cfg, logger, out_path_root, coordinates_publisher)  
+        inference_time = test(model, dataset, _cfg, logger, out_path_root, coordinates_publisher)
         logger.info('=> ============ Network Test Done ============')
+        if not inference_time:
+            logger.info('No voxel files were processed in this cycle.')
+            rate.sleep()
+            continue
         average_inference_time = np.sum(inference_time) / 1.0
         fps = 1 / average_inference_time
         logger.info('Inference time per frame is %.6f seconds\n' % average_inference_time)

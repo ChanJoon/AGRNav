@@ -50,6 +50,9 @@ class PointCloudListener:
             remission = remission / 10            
             point_cloud.append([x, y, z, remission])
         
+        if not point_cloud:
+            return
+
         point_cloud = np.array(point_cloud, dtype=np.float32)
         point_cloud_bytes = point_cloud.tobytes()
 

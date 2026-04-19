@@ -55,8 +55,10 @@ class PointCloudVoxelization:
                 
                 # Read point cloud
                 point_cloud = self._read_pointcloud_SemKITTI(input_path)
+                if point_cloud.size == 0:
+                    continue
                 points_xyz = point_cloud[:, :3]
-                
+
                 # Update min_coords and max_coords
                 min_coords = np.minimum(min_coords, np.min(points_xyz, axis=0))
                 max_coords = np.maximum(max_coords, np.max(points_xyz, axis=0))
@@ -81,8 +83,11 @@ class PointCloudVoxelization:
                 print(input_path)
                 # Read point cloud
                 point_cloud = self._read_pointcloud_SemKITTI(input_path)
+                if point_cloud.size == 0:
+                    os.remove(input_path)
+                    continue
                 points_xyz = point_cloud[:, :3]
-                #print(f"points_xyz: {points_xyz}") 
+                #print(f"points_xyz: {points_xyz}")
                 # Voxelization
                 voxel_coords = ((points_xyz - voxel_origin) // voxel_size).astype(int)
                 valid_mask = np.all((voxel_coords >= 0) & (voxel_coords < self.grid_size), axis=1)
