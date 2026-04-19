@@ -1,3 +1,38 @@
+## 🔀 Fork Changes (ROS Noetic)
+
+This fork updates the Docker setup for **ROS Noetic** compatibility. All other content is identical to the [upstream repository](https://github.com/jmwang0117/AGRNav).
+
+### What changed from upstream
+
+**Docker image & container**
+- Dockerfile moved to `Docker/noetic/` — supports ROS Noetic on Ubuntu 20.04
+- New image name: `skywalker_agrnav_noetic` (was `skywalker_robot`)
+- New container name: `agrnav_noetic` (was `robot`)
+- NLopt 2.7.1 is pre-installed in the image; no separate install needed
+
+**Repository mount**
+- The repository is bind-mounted into the container at `/root/AGRNav`
+- **No need to `git clone` again inside the container** (upstream step 5 is removed)
+
+**Build commands**
+```bash
+# Use the build script instead of docker build directly
+bash build_dockerfile.sh
+
+# Start and enter the container
+docker start agrnav_noetic
+docker exec -it agrnav_noetic bash
+
+# Clean build (recommended when migrating from an older build tree)
+cd /root/AGRNav
+rm -rf build devel
+catkin_make
+source devel/setup.bash
+sh src/run.sh
+```
+
+---
+
 <div align="center">   
 
 # 🤖 AGRNav: Efficient and Energy-Saving Autonomous Navigation for Air-Ground Robots in Occlusion-Prone Environments
@@ -140,4 +175,3 @@ Many thanks to these excellent open source projects:
 - [semantic-kitti-api](https://github.com/PRBonn/semantic-kitti-api)
 - [Terrestrial-Aerial-Navigation](https://github.com/ZJU-FAST-Lab/Terrestrial-Aerial-Navigation)
 - [Fast-Planner](https://github.com/HKUST-Aerial-Robotics/Fast-Planner)
-
