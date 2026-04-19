@@ -1,34 +1,24 @@
-## 🔀 Fork Changes (ROS Noetic)
+## ROS Noetic fork
 
-This fork updates the Docker setup for **ROS Noetic** compatibility. All other content is identical to the [upstream repository](https://github.com/jmwang0117/AGRNav).
+This fork uses the Docker setup in `Docker/noetic/` for ROS Noetic on Ubuntu 20.04.
+The container mounts this repository at `/root/AGRNav`, so you do not need to clone the repository again inside the container.
 
-### What changed from upstream
+- Image: `skywalker_agrnav_noetic`
+- Container: `agrnav_noetic`
 
-**Docker image & container**
-- Dockerfile moved to `Docker/noetic/` — supports ROS Noetic on Ubuntu 20.04
-- New image name: `skywalker_agrnav_noetic` (was `skywalker_robot`)
-- New container name: `agrnav_noetic` (was `robot`)
-- NLopt 2.7.1 is pre-installed in the image; no separate install needed
-
-**Repository mount**
-- The repository is bind-mounted into the container at `/root/AGRNav`
-- **No need to `git clone` again inside the container** (upstream step 5 is removed)
-
-**Build commands**
 ```bash
-# Use the build script instead of docker build directly
+cd Docker/noetic
 bash build_dockerfile.sh
+bash create_container.sh
 
-# Start and enter the container
 docker start agrnav_noetic
 docker exec -it agrnav_noetic bash
 
-# Clean build (recommended when migrating from an older build tree)
 cd /root/AGRNav
 rm -rf build devel
 catkin_make
 source devel/setup.bash
-sh src/run.sh
+sh src/run_noetic.sh
 ```
 
 ---
